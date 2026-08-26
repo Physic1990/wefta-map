@@ -362,7 +362,7 @@ require([
 
   // ── load projects ─────────────────────────────────────────────────────
   view.when(() => {
-    projLayer.queryFeatures({ where: "1=1", outFields: ["*"], returnGeometry: true, num: 2000 })
+    projLayer.queryFeatures({ where: "1=1", outFields: ["*"], returnGeometry: true, num: 2000, returnDomainValues: true })
       .then(res => {
         projects = res.features;
 
