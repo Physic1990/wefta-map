@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>WEFTA Project Discovery Map</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css"/>
+  <script src="https://js.arcgis.com/4.29/"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--t9:#0D3B3E;--t7:#1A5C61;--t5:#2A8A91;--t2:#A8D8DB;--t0:#EAF6F7;--s1:#F5F0E8;--wh:#FFFFFF;--g7:#3A3A3A;--g4:#8A8A8A;--g1:#F2F2F2;--ac:#E8832A;--acl:#FDF0E3;--sh:0 4px 24px rgba(13,59,62,.15);--r:10px;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--t9);color:var(--g7);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    header{background:var(--t9);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08);z-index:10;}
+    .lw{display:flex;align-items:center;gap:12px;}
+    .li{width:32px;height:32px;background:var(--t5);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+    .li svg{width:18px;height:18px;fill:white;}
+    .lt{font-family:'Playfair Display',serif;font-size:17px;color:white;}
+    .lt span{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:400;color:var(--t2);display:block;letter-spacing:1.5px;text-transform:uppercase;margin-top:-2px;}
+    .hs{display:flex;gap:20px;}
+    .st{text-align:right;}
+    .sn{font-size:17px;font-weight:600;color:white;line-height:1;}
+    .sl{font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;}
+    .app{display:flex;flex:1;overflow:hidden;}
+    .sb{width:320px;background:var(--wh);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;border-right:1px solid var(--g1);}
+    .sbh{padding:16px 18px 14px;border-bottom:1px solid var(--g1);background:var(--s1);}
+    .sbt{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--g4);margin-bottom:10px;}
+    .sw{position:relative;}
+    .sw svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;fill:var(--g4);pointer-events:none;}
+    #si{width:100%;padding:8px 10px 8px 32px;border:1.5px solid var(--g1);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--g7);background:white;outline:none;transition:border-color .15s;}
+    #si:focus{border-color:var(--t5);}
+    .cf{padding:10px 16px;border-bottom:1px solid var(--g1);display:flex;flex-wrap:wrap;gap:5px;background:white;max-height:96px;overflow-y:auto;}
+    .cf::-webkit-scrollbar{width:3px;}
+    .cf::-webkit-scrollbar-thumb{background:var(--t2);border-radius:3px;}
+    .pill{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;border:1.5px solid var(--g1);cursor:pointer;transition:all .15s;color:var(--g7);background:white;white-space:nowrap;}
+    .pill:hover{border-color:var(--t5);color:var(--t7);}
+    .pill.active{background:var(--t7);border-color:var(--t7);color:white;}
+    .pill-all{background:var(--t0);border-color:var(--t2);color:var(--t7);}
+    .pill-all.active{background:var(--t7);color:white;}
+    .lh{padding:8px 18px 6px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--g4);border-bottom:1px solid var(--g1);background:white;display:flex;justify-content:space-between;align-items:center;}
+    .lc{background:var(--t0);color:var(--t7);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;}
+    .pjl{flex:1;overflow-y:auto;padding:4px 0;}
+    .pjl::-webkit-scrollbar{width:3px;}
+    .pjl::-webkit-scrollbar-thumb{background:var(--t2);border-radius:3px;}
+    .pc{padding:12px 18px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;border-bottom:1px solid var(--g1);}
+    .pc:hover{background:var(--t0);border-left-color:var(--t5);}
+    .pc.active{background:var(--t0);border-left-color:var(--t7);}
+    .cc{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--t5);margin-bottom:3px;display:flex;align-items:center;gap:5px;}
+    .cd{width:5px;height:5px;border-radius:50%;background:var(--t5);flex-shrink:0;}
+    .cn{font-size:13px;font-weight:600;color:var(--g7);line-height:1.35;margin-bottom:4px;}
+    .cm{font-size:11px;color:var(--g4);margin-bottom:6px;}
+    .ca{display:flex;gap:6px;flex-wrap:wrap;}
+    .ct{font-size:10px;padding:2px 7px;border-radius:4px;background:var(--g1);color:var(--g4);font-weight:500;}
+    .ct.a{background:#E8F5E9;color:#2E7D32;}
+    .ct.c{background:#E3F2FD;color:#1565C0;}
+    .ct.d{background:var(--acl);color:var(--ac);}
+    .nr{padding:40px 20px;text-align:center;color:var(--g4);font-size:13px;}
+    #mc{flex:1;position:relative;}
+    #vd{width:100%;height:100%;}
+    #dtip{position:absolute;background:var(--t9);color:white;padding:7px 11px;border-radius:6px;font-size:12px;font-weight:500;pointer-events:none;z-index:10;display:none;white-space:nowrap;box-shadow:var(--sh);}
+    #zh{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:rgba(13,59,62,.88);color:white;padding:7px 16px;border-radius:20px;font-size:11px;pointer-events:none;z-index:6;transition:opacity .4s;border:1px solid rgba(255,255,255,.1);opacity:0;}
+    #zh.show{opacity:1;}
+    .leg{position:absolute;bottom:24px;left:14px;background:rgba(13,59,62,.88);border-radius:8px;padding:10px 14px;z-index:5;color:white;}
+    .leg-t{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t2);margin-bottom:8px;}
+    .leg-i{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px;}
+    .leg-i:last-child{margin-bottom:0;}
+    .leg-s{width:20px;height:12px;border-radius:3px;flex-shrink:0;}
+    .dp{position:absolute;top:14px;right:14px;width:300px;background:white;border-radius:var(--r);box-shadow:var(--sh);max-height:calc(100vh - 84px);overflow-y:auto;z-index:5;display:none;animation:sli .2s ease;}
+    .dp.v{display:block;}
+    @keyframes sli{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+    .dp::-webkit-scrollbar{width:3px;}
+    .dp::-webkit-scrollbar-thumb{background:var(--t2);border-radius:3px;}
+    .dph{background:var(--t7);padding:14px 16px;border-radius:var(--r) var(--r) 0 0;position:relative;}
+    .dpc{position:absolute;top:10px;right:10px;width:24px;height:24px;background:rgba(255,255,255,.15);border:none;border-radius:50%;cursor:pointer;color:white;font-size:13px;display:flex;align-items:center;justify-content:center;}
+    .dpc:hover{background:rgba(255,255,255,.25);}
+    .dpcn{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--t2);margin-bottom:5px;}
+    .dpn2{font-family:'Playfair Display',serif;font-size:15px;color:white;line-height:1.35;padding-right:26px;}
+    .dpb{padding:14px 16px;}
+    .dps{margin-bottom:14px;}
+    .dps:last-child{margin-bottom:0;}
+    .dpst{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--t5);margin-bottom:5px;padding-bottom:4px;border-bottom:1px solid var(--t0);}
+    .dptx{font-size:12px;color:var(--g7);line-height:1.6;}
+    .dpr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--g1);gap:8px;}
+    .dpr:last-child{border-bottom:none;}
+    .dprl{font-size:11px;color:var(--g4);flex-shrink:0;}
+    .dprv{font-size:11px;font-weight:500;color:var(--g7);text-align:right;}
+    .badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;margin-top:6px;}
+    #ld{position:absolute;inset:0;background:var(--t9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .5s;}
+    #ld.h{opacity:0;pointer-events:none;}
+    .ll{font-family:'Playfair Display',serif;font-size:26px;color:white;margin-bottom:6px;}
+    .ls{font-size:11px;color:var(--t2);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px;}
+    .lb{width:160px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;}
+    .lf{height:100%;background:var(--t5);animation:lf 2s ease forwards;}
+    @keyframes lf{from{width:0}to{width:100%}}
+    .esri-ui-top-left{top:14px!important;left:14px!important;}
+    .esri-widget--button{border-radius:7px!important;}
+  </style>
+</head>
+<body>
+<div id="ld"><div class="ll">WEFTA</div><div class="ls">Project Discovery</div><div class="lb"><div class="lf"></div></div></div>
+<header>
+  <div class="lw">
+    <div class="li"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+    <div class="lt">WEFTA<span>Project Discovery Map</span></div>
+  </div>
+  <div class="hs">
+    <div class="st"><div class="sn" id="tc">—</div><div class="sl">Projects</div></div>
+    <div class="st"><div class="sn" id="cc2">—</div><div class="sl">Countries</div></div>
+    <div class="st"><div class="sn" id="tp">—</div><div class="sl">People Served</div></div>
+  </div>
+</header>
+<div class="app">
+  <div class="sb">
+    <div class="sbh">
+      <div class="sbt">Filter Projects</div>
+      <div class="sw">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="si" placeholder="Search projects, communities…"/>
+      </div>
+    </div>
+    <div class="cf" id="cp"><div class="pill pill-all active" data-c="all">All Countries</div></div>
+    <div class="lh"><span>Projects</span><span class="lc" id="lc2">0</span></div>
+    <div class="pjl" id="pjl"><div class="nr">Loading projects…</div></div>
+  </div>
+  <div id="mc">
+    <div id="vd"></div>
+    <div id="dtip"></div>
+    <div id="zh">🛰 Satellite imagery active</div>
+    <div class="leg">
+      <div class="leg-t">Where WEFTA Works</div>
+      <div class="leg-i"><div class="leg-s" style="background:rgba(42,138,145,.35);border:1.5px solid #2A8A91"></div><span>Country with projects</span></div>
+      <div class="leg-i"><div class="leg-s" style="background:#2A8A91;border-radius:50%;border:2px solid white"></div><span>Project location</span></div>
+    </div>
+    <div class="dp" id="dpp">
+      <div class="dph">
+        <div class="dpcn" id="el-country"></div>
+        <div class="dpn2" id="el-name"></div>
+        <button class="dpc" id="el-close">✕</button>
+      </div>
+      <div class="dpb">
+        <div class="dps"><div id="el-badge"></div></div>
+
+        <div class="dps">
+          <div class="dpst">Location</div>
+          <div class="dpr"><span class="dprl">Community</span><span class="dprv" id="el-comm">—</span></div>
+          <div class="dpr"><span class="dprl">Country</span><span class="dprv" id="el-country2">—</span></div>
+          <div class="dpr"><span class="dprl">Sub-Region</span><span class="dprv" id="el-region">—</span></div>
+        </div>
+
+        <div class="dps">
+          <div class="dpst">Project Info</div>
+          <div class="dpr"><span class="dprl">Type</span><span class="dprv" id="el-type">—</span></div>
+          <div class="dpr"><span class="dprl">Status</span><span class="dprv" id="el-status2">—</span></div>
+          <div class="dpr"><span class="dprl">Phase</span><span class="dprv" id="el-phase">—</span></div>
+          <div class="dpr"><span class="dprl">Completion</span><span class="dprv" id="el-comp">—</span></div>
+        </div>
+
+        <div class="dps" id="el-desc-wrap">
+          <div class="dpst">Brief Project Description</div>
+          <div class="dptx" id="el-desc"></div>
+        </div>
+
+        <div class="dps" id="el-wash-wrap">
+          <div class="dpst">WASH Concerns</div>
+          <div class="dptx" id="el-wash"></div>
+        </div>
+
+        <div class="dps" id="el-sus-wrap">
+          <div class="dpst">Sustainability Considerations</div>
+          <div class="dptx" id="el-sus"></div>
+        </div>
+
+        <div class="dps" id="el-notes-wrap">
+          <div class="dpst">Additional Notes</div>
+          <div class="dptx" id="el-notes"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+// CONFIG — update FEATURE_URL with your actual URL
+// ══════════════════════════════════════════════════════════════════════════
+const FEATURE_URL = "https://services.arcgis.com/00Ya326J0OxGcPmF/arcgis/rest/services/PROJ_DISCOVERY_Public_f7b0d/FeatureServer/0";
+const SAT_ZOOM    = 10;
+const WORLD_CTR   = [20, 5];
+const WORLD_ZOOM  = 3;
+
+const ISO_MAP = {
+  "kenya":"KEN","nigeria":"NGA","ghana":"GHA","burkina faso":"BFA",
+  "cameroon":"CMR","ethiopia":"ETH","uganda":"UGA","tanzania":"TZA",
+  "mozambique":"MOZ","zambia":"ZMB","zimbabwe":"ZWE","rwanda":"RWA",
+  "south sudan":"SSD","sudan":"SDN","mali":"MLI","niger":"NER",
+  "senegal":"SEN","guinea":"GIN","ivory coast":"CIV","cote d'ivoire":"CIV",
+  "madagascar":"MDG","angola":"AGO","burundi":"BDI","malawi":"MWI",
+  "togo":"TGO","benin":"BEN","sierra leone":"SLE","liberia":"LBR",
+  "chad":"TCD","somalia":"SOM","dr congo":"COD","congo":"COD",
+  "democratic republic of the congo":"COD",
+  "honduras":"HND","nicaragua":"NIC","guatemala":"GTM","el salvador":"SLV",
+  "haiti":"HTI","ecuador":"ECU","colombia":"COL","bolivia":"BOL",
+  "peru":"PER","paraguay":"PRY","dominican republic":"DOM",
+  "india":"IND","myanmar":"MMR","cambodia":"KHM","nepal":"NPL",
+  "bangladesh":"BGD","philippines":"PHL","indonesia":"IDN",
+  "afghanistan":"AFG","yemen":"YEM","pakistan":"PAK","laos":"LAO",
+  "brazil":"BRA","brasil":"BRA","mexico":"MEX","panama":"PAN","venezuela":"VEN",
+};
+
+const FILLS = [
+  [42,138,145],[26,92,97],[55,160,168],[14,110,118],
+  [70,178,186],[38,124,132],[22,76,82],[58,150,158],
+];
+
+// ── helpers ───────────────────────────────────────────────────────────────
+const $  = id => document.getElementById(id);
+const fv = v  => v || "—";
+const fu = v  => v ? "$" + Number(v).toLocaleString("en-US", {maximumFractionDigits:0}) : "—";
+const fd = ts => ts ? new Date(ts).toLocaleDateString("en-US", {year:"numeric",month:"short",day:"numeric"}) : "—";
+const sc = s  => { if (!s) return "#888"; s = s.toLowerCase(); return s.includes("complete") ? "#1565C0" : s.includes("active") ? "#2E7D32" : "#E8832A"; };
+const show = (id, val) => { $(id).style.display = val ? "" : "none"; };
+
+require([
+  "esri/Map",
+  "esri/views/MapView",
+  "esri/layers/FeatureLayer",
+  "esri/layers/GeoJSONLayer",
+  "esri/core/reactiveUtils",
+], function(Map, MapView, FeatureLayer, GeoJSONLayer, reactiveUtils) {
+
+  // ── map ──────────────────────────────────────────────────────────────
+  const map  = new Map({ basemap: "gray-vector" });
+  const view = new MapView({
+    container: "vd", map,
+    center: WORLD_CTR, zoom: WORLD_ZOOM,
+    ui: { components: ["zoom"] },
+    popup: { autoOpenEnabled: false },
+  });
+
+  // ── state ─────────────────────────────────────────────────────────────
+  let projects      = [];   // all loaded features
+  let activeCountry = "all";
+  let activeOID     = null;
+  let searchTerm    = "";
+  let isSatellite   = false;
+  let projCounts    = {};   // country -> count
+  let geoLayer      = null;
+
+  // ── auto satellite + hide country highlights on zoom ────────────────────
+  const HIDE_COUNTRY_ZOOM = 7;  // hide country fills at this zoom level
+  let satTimer = null;
+  reactiveUtils.watch(() => view.zoom, z => {
+    // Hide/show country layer immediately on zoom change
+    if (geoLayer) {
+      geoLayer.visible = z < HIDE_COUNTRY_ZOOM;
+    }
+
+    // Debounce the basemap switch — wait for zoom animation to finish
+    clearTimeout(satTimer);
+    satTimer = setTimeout(() => {
+      if (z >= SAT_ZOOM && !isSatellite) {
+        map.basemap = "satellite"; isSatellite = true;
+        $("zh").classList.add("show");
+      } else if (z < SAT_ZOOM && isSatellite) {
+        map.basemap = "gray-vector"; isSatellite = false;
+        $("zh").classList.remove("show");
+      }
+    }, 600);
+  });
+
+  // ── project dots ──────────────────────────────────────────────────────
+  const projLayer = new FeatureLayer({
+    url: FEATURE_URL,
+    outFields: ["*"],
+    popupEnabled: false,
+    effect: "drop-shadow(0 3px 8px rgba(0,0,0,.4))"
+  });
+  // ── custom symbology by project type ────────────────────────────────────
+  // Using CIMSymbol for professional water drop icons
+  // Colors by project type, water drop shape for all WASH projects
+  function makeDropSymbol(hexColor, size) {
+    return {
+      type: "picture-marker",
+      url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36">
+          <ellipse cx="14" cy="34" rx="6" ry="2.5" fill="rgba(0,0,0,0.2)"/>
+          <path d="M14 2 C14 2 4 14 4 21 C4 27.6 8.5 33 14 33 C19.5 33 24 27.6 24 21 C24 14 14 2 14 2Z"
+                fill="${hexColor}" stroke="white" stroke-width="2"/>
+          <path d="M10 19 C9 15.5 11.5 12 14 10"
+                stroke="rgba(255,255,255,0.55)" stroke-width="1.8"
+                stroke-linecap="round" fill="none"/>
+        </svg>`)}`,
+      width:  size,
+      height: size * 1.29,
+      yoffset: size * 0.3,
+    };
+  }
+
+  projLayer.renderer = {
+    type: "unique-value",
+    field: "ProjectType",
+    uniqueValueInfos: [
+      { value: "Water System",
+        symbol: makeDropSymbol("#1A5C61", 22),
+        label: "Water System" },
+      { value: "Sanitation",
+        symbol: makeDropSymbol("#2D6A4F", 22),
+        label: "Sanitation" },
+      { value: "Hygiene",
+        symbol: makeDropSymbol("#40916C", 22),
+        label: "Hygiene" },
+      { value: "Health Care Facility (HCF) Upgrade",
+        symbol: makeDropSymbol("#1B4332", 22),
+        label: "HCF Upgrade" },
+      { value: "Rainwater Harvesting",
+        symbol: makeDropSymbol("#2A8A91", 22),
+        label: "Rainwater Harvesting" },
+      { value: "Borehole",
+        symbol: makeDropSymbol("#0D6EFD", 22),
+        label: "Borehole" },
+      { value: "Spring Protection",
+        symbol: makeDropSymbol("#0096C7", 22),
+        label: "Spring Protection" },
+      { value: "Gravity Fed System",
+        symbol: makeDropSymbol("#023E8A", 22),
+        label: "Gravity Fed System" },
+    ],
+    defaultSymbol: makeDropSymbol("#1A5C61", 22),
+    defaultLabel: "Project",
+  };
+
+  map.add(projLayer);
+
+  // ── dot tooltip ───────────────────────────────────────────────────────
+  const dtip = $("dtip");
+  let hoverBusy = false;
+  view.on("pointer-move", e => {
+    if (hoverBusy) return;
+    hoverBusy = true;
+    view.hitTest(e, { include: [projLayer] })
+      .then(h => {
+        if (h.results.length) {
+          dtip.textContent   = h.results[0].graphic.attributes.ProjectName || "Project";
+          dtip.style.display = "block";
+          dtip.style.left    = Math.max(0, e.x - dtip.offsetWidth / 2) + "px";
+          dtip.style.top     = Math.max(0, e.y - dtip.offsetHeight - 14) + "px";
+          view.container.style.cursor = "pointer";
+        } else {
+          dtip.style.display = "none";
+          view.container.style.cursor = "default";
+        }
+      })
+      .catch(() => { dtip.style.display = "none"; })
+      .finally(() => { setTimeout(() => { hoverBusy = false; }, 80); });
+  });
+
+  // ── dot click ─────────────────────────────────────────────────────────
+  view.on("click", e => {
+    view.hitTest(e, { include: [projLayer] })
+      .then(h => { if (h.results.length) selectProject(h.results[0].graphic.attributes.OBJECTID); })
+      .catch(() => {});
+  });
+
+  // ── load projects ─────────────────────────────────────────────────────
+  view.when(() => {
+    projLayer.queryFeatures({ where: "1=1", outFields: ["*"], returnGeometry: true, num: 2000 })
+      .then(res => {
+        projects = res.features;
+
+        const countries = [...new Set(projects.map(f => f.attributes.Country).filter(Boolean))].sort();
+        const weftaISOs = new Set();
+
+        countries.forEach(c => {
+          projCounts[c] = projects.filter(f => f.attributes.Country === c).length;
+          const iso = ISO_MAP[c.toLowerCase()];
+          if (iso) {
+            weftaISOs.add(iso);
+          } else {
+            console.warn(`No ISO mapping for country: "${c}" — add to ISO_MAP to enable highlight`);
+          }
+        });
+
+        // Stats
+        const tp = projects.reduce((s, f) => s + (f.attributes.PublicPopulation || 0), 0);
+        $("tc").textContent  = projects.length;
+        $("cc2").textContent = countries.length;
+        $("tp").textContent  = tp >= 1e6 ? (tp/1e6).toFixed(1)+"M" : tp >= 1000 ? Math.round(tp/1000)+"K" : tp || "—";
+
+        // Build country layer then UI
+        buildCountryLayer(weftaISOs).then(() => {
+          buildPills(countries);
+          renderList(projects);
+          setTimeout(() => $("ld").classList.add("h"), 700);
+        });
+      })
+      .catch(() => {
+        $("ld").classList.add("h");
+        $("pjl").innerHTML = '<div class="nr">Could not load projects.<br>Check FEATURE_URL.</div>';
+      });
+  });
+
+  // ── country GeoJSON layer ────────────────────────────────────────────────
+  // Loads ALL world countries once. Highlights WEFTA countries dynamically
+  // from whatever is in the data — no code change needed when new countries added.
+  // A page refresh picks up new countries automatically since data is live from AGOL.
+  async function buildCountryLayer(isoSet) {
+    try {
+      const res  = await fetch("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_0_countries.geojson");
+      const data = await res.json();
+
+      // Stamp ISO_KEY on ALL world features
+      data.features.forEach(f => {
+        f.properties.ISO_KEY = f.properties.ADM0_A3 || f.properties.ISO_A3 || "";
+      });
+
+      // Build unique-value infos only for WEFTA countries
+      // All other countries get the defaultSymbol (transparent = invisible)
+      const infos = [];
+      let colorIdx = 0;
+      data.features.forEach(f => {
+        const iso = f.properties.ISO_KEY;
+        if (isoSet.has(iso)) {
+          const [r,g,b] = FILLS[colorIdx % FILLS.length];
+          infos.push({
+            value: iso,
+            symbol: {
+              type: "simple-fill",
+              color: [r,g,b,0.30],
+              outline: { color:[r,g,b,0.75], width:1.2 }
+            }
+          });
+          colorIdx++;
+        }
+      });
+
+      if (!infos.length) {
+        console.warn("No WEFTA countries matched in GeoJSON. Check ISO_MAP entries.");
+        console.warn("Countries in data:", [...isoSet]);
+        return;
+      }
+
+      console.log(`Country highlights: ${infos.length} WEFTA countries highlighted`);
+
+      // Use ALL world features so future countries auto-highlight on refresh
+      const blob = new Blob(
+        [JSON.stringify({ type:"FeatureCollection", features: data.features })],
+        { type:"application/json" }
+      );
+
+      geoLayer = new GeoJSONLayer({
+        url: URL.createObjectURL(blob),
+        outFields: ["ISO_KEY"],
+        renderer: {
+          type: "unique-value",
+          field: "ISO_KEY",
+          uniqueValueInfos: infos,
+          // Non-WEFTA countries are transparent — only WEFTA countries show
+          defaultSymbol: {
+            type: "simple-fill",
+            color: [0,0,0,0],
+            outline: { color:[0,0,0,0], width:0 }
+          }
+        },
+        popupEnabled: false,
+      });
+
+      map.add(geoLayer, 0);
+    } catch(e) {
+      console.warn("Country layer failed:", e);
+    }
+  }
+
+  // ── pills ─────────────────────────────────────────────────────────────
+  function buildPills(countries) {
+    const wrap = $("cp");
+    countries.forEach(name => {
+      const p = document.createElement("div");
+      p.className = "pill"; p.dataset.c = name;
+      p.textContent = `${name} (${projCounts[name] || 0})`;
+      p.onclick = () => filterByCountry(name);
+      wrap.appendChild(p);
+    });
+    wrap.querySelector(".pill-all").onclick = () => filterByCountry("all");
+  }
+
+  function filterByCountry(country) {
+    activeCountry = country;
+    closeDetail();
+    document.querySelectorAll(".pill").forEach(p => p.classList.toggle("active", p.dataset.c === country));
+    applyFilters();
+    if (country !== "all") {
+      const feats = projects.filter(f => f.attributes.Country === country);
+      safeGoTo(feats);
+    } else {
+      view.goTo({ center: WORLD_CTR, zoom: WORLD_ZOOM }, { duration: 700 }).catch(() => {});
+    }
+  }
+
+  function applyFilters() {
+    const f = projects.filter(f => {
+      const mc = activeCountry === "all" || f.attributes.Country === activeCountry;
+      const ms = !searchTerm ||
+        (f.attributes.ProjectName   || "").toLowerCase().includes(searchTerm) ||
+        (f.attributes.CommunityName || "").toLowerCase().includes(searchTerm) ||
+        (f.attributes.Country       || "").toLowerCase().includes(searchTerm);
+      return mc && ms;
+    });
+    renderList(f);
+  }
+
+  // ── project list ──────────────────────────────────────────────────────
+  function renderList(list) {
+    $("lc2").textContent = list.length;
+    const wrap = $("pjl");
+    if (!list.length) { wrap.innerHTML = '<div class="nr">No projects match.</div>'; return; }
+    wrap.innerHTML = list.map(f => {
+      const a = f.attributes, oid = a.OBJECTID;
+      const s = (a.ProjectStatus || "").toLowerCase();
+      const cls = s.includes("complete") ? "c" : s.includes("active") ? "a" : "d";
+      return `<div class="pc${oid === activeOID ? " active" : ""}" data-oid="${oid}" onclick="selectProject(${oid})">
+        <div class="cc"><div class="cd"></div>${a.Country || ""}</div>
+        <div class="cn">${a.ProjectName || "Unnamed Project"}</div>
+        ${a.CommunityName ? `<div class="cm">${a.CommunityName}</div>` : ""}
+        <div class="ca">
+          ${a.ProjectStatus ? `<span class="ct ${cls}">${a.ProjectStatus}</span>` : ""}
+          ${a.ProjectType   ? `<span class="ct">${a.ProjectType}</span>` : ""}
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  // ── select project ────────────────────────────────────────────────────
+  window.selectProject = function(oid) {
+    try {
+      activeOID = oid;
+      const feat = projects.find(f => f.attributes.OBJECTID === oid);
+      if (!feat) return;
+
+      document.querySelectorAll(".pc").forEach(c =>
+        c.classList.toggle("active", parseInt(c.dataset.oid) === oid));
+
+      // Safe zoom using lon/lat stored in attributes or geometry
+      const a   = feat.attributes;
+      const lon = a.longitude || a.Longitude || a.LongitudeDD ||
+                  (feat.geometry ? feat.geometry.longitude : null);
+      const lat = a.latitude  || a.Latitude  || a.LatitudeDD  ||
+                  (feat.geometry ? feat.geometry.latitude  : null);
+
+      if (lon != null && lat != null) {
+        // animate: false prevents the UI freeze during basemap + zoom switch
+        view.goTo(
+          { center: [lon, lat], zoom: 14 },
+          { duration: 600, easing: "ease-out", animate: true }
+        ).catch(() => {});
+      } else if (feat.geometry) {
+        view.goTo(
+          { target: feat.geometry.extent || feat.geometry, zoom: 14 },
+          { duration: 600, easing: "ease-out", animate: true }
+        ).catch(() => {});
+      }
+
+      showDetail(feat.attributes);
+
+      const card = document.querySelector(`[data-oid="${oid}"]`);
+      if (card) card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    } catch(e) {
+      console.error("selectProject error:", e);
+    }
+  };
+
+  // ── close detail ──────────────────────────────────────────────────────
+  function closeDetail() {
+    $("dpp").classList.remove("v");
+    activeOID = null;
+    document.querySelectorAll(".pc").forEach(c => c.classList.remove("active"));
+  }
+
+  $("el-close").onclick = () => {
+    closeDetail();
+    if (activeCountry !== "all") {
+      safeGoTo(projects.filter(f => f.attributes.Country === activeCountry));
+    } else {
+      view.goTo({ center: WORLD_CTR, zoom: WORLD_ZOOM }, { duration: 700 }).catch(() => {});
+    }
+  };
+
+  // ── safe zoom to feature set using lon/lat ────────────────────────────
+  function safeGoTo(feats) {
+    try {
+      const pts = feats
+        .filter(f => f.geometry)
+        .map(f => ({ lon: f.geometry.longitude, lat: f.geometry.latitude }))
+        .filter(p => p.lon != null && p.lat != null);
+
+      if (!pts.length) return;
+
+      if (pts.length === 1) {
+        view.goTo(
+          { center: [pts[0].lon, pts[0].lat], zoom: 9 },
+          { duration: 500, easing: "ease-out" }
+        ).catch(() => {});
+        return;
+      }
+
+      const lons = pts.map(p => p.lon);
+      const lats = pts.map(p => p.lat);
+      const xmin = Math.min(...lons);
+      const xmax = Math.max(...lons);
+      const ymin = Math.min(...lats);
+      const ymax = Math.max(...lats);
+
+      // Calculate padding based on spread — small spread = more padding, large = less
+      const lonSpread = xmax - xmin;
+      const latSpread = ymax - ymin;
+      const padX = Math.min(lonSpread * 0.15, 3);  // max 3 degrees padding
+      const padY = Math.min(latSpread * 0.15, 3);
+
+      // Clamp extent to valid lat/lon range
+      const ext = {
+        type: "extent",
+        xmin: Math.max(-180, xmin - padX),
+        xmax: Math.min(180,  xmax + padX),
+        ymin: Math.max(-90,  ymin - padY),
+        ymax: Math.min(90,   ymax + padY),
+        spatialReference: { wkid: 4326 }
+      };
+
+      // Calculate a reasonable zoom floor so we don't zoom out too far
+      // Kenya (~10 deg spread) should stay around zoom 5-6, not zoom 3
+      const maxSpread = Math.max(lonSpread, latSpread);
+      const minZoom = maxSpread > 20 ? 4 :
+                      maxSpread > 10 ? 5 :
+                      maxSpread > 5  ? 6 : 7;
+
+      view.goTo(
+        { target: ext },
+        { duration: 600, easing: "ease-out" }
+      ).then(() => {
+        // After goTo, enforce minimum zoom so we don't zoom out too far
+        if (view.zoom < minZoom) {
+          view.goTo({ zoom: minZoom }, { duration: 300 }).catch(() => {});
+        }
+      }).catch(() => {});
+
+    } catch(e) {
+      console.warn("safeGoTo error:", e);
+    }
+  }
+
+  // ── detail panel ──────────────────────────────────────────────────────
+  function showDetail(a) {
+    try {
+      // Header — country · subregion in subtitle, project name as title
+      $("el-country").textContent = [a.Country, a.SubRegion].filter(Boolean).join(" · ");
+      $("el-name").textContent    = a.ProjectName || "Unnamed Project";
+
+      // Status badge
+      const color = sc(a.ProjectStatus);
+      $("el-badge").innerHTML = a.ProjectStatus
+        ? `<span class="badge" style="background:${color}20;color:${color}">${a.ProjectStatus}</span>` : "";
+
+      // Location
+      $("el-comm").textContent    = fv(a.CommunityName);
+      $("el-country2").textContent = fv(a.Country);
+      $("el-region").textContent  = fv(a.SubRegion);
+
+      // Project info
+      $("el-type").textContent    = fv(a.ProjectType);
+      $("el-status2").textContent = fv(a.ProjectStatus);
+      $("el-phase").textContent   = fv(a.Phase);
+      // Completion date — show "Pending" if blank (Tim's request)
+      $("el-comp").textContent    = a.ActualCompletionDate ? fd(a.ActualCompletionDate) : "Pending";
+
+      // Brief Project Description
+      const desc = a.BriefProjectDescription_EN || "";
+      show("el-desc-wrap", desc);
+      $("el-desc").textContent = desc;
+
+      // WASH Concerns
+      const wash = a.WASHConcerns_EN || "";
+      show("el-wash-wrap", wash);
+      $("el-wash").textContent = wash;
+
+      // Sustainability Considerations
+      const sus = a.SustainabilityConsiderations_EN || "";
+      show("el-sus-wrap", sus);
+      $("el-sus").textContent = sus;
+
+      // Additional Notes — only show if not empty (Tim's request)
+      const notes = a.REMARK2_EN || "";
+      show("el-notes-wrap", notes);
+      $("el-notes").textContent = notes;
+
+      $("dpp").classList.add("v");
+    } catch(e) {
+      console.error("showDetail error:", e);
+    }
+  }
+
+  // ── search ────────────────────────────────────────────────────────────
+  $("si").addEventListener("input", e => {
+    searchTerm = e.target.value.toLowerCase().trim();
+    applyFilters();
+  });
+
+}); // end require
+</script>
+</body>
+</html>
