@@ -11,16 +11,6 @@
     :root{--t9:#0D3B3E;--t7:#1A5C61;--t5:#2A8A91;--t2:#A8D8DB;--t0:#EAF6F7;--s1:#F5F0E8;--wh:#FFFFFF;--g7:#3A3A3A;--g4:#8A8A8A;--g1:#F2F2F2;--ac:#E8832A;--acl:#FDF0E3;--sh:0 4px 24px rgba(13,59,62,.15);--r:10px;}
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'DM Sans',sans-serif;background:var(--t9);color:var(--g7);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
-    header{background:var(--t9);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08);z-index:10;}
-    .lw{display:flex;align-items:center;gap:12px;}
-    .li{width:32px;height:32px;background:var(--t5);border-radius:7px;display:flex;align-items:center;justify-content:center;}
-    .li svg{width:18px;height:18px;fill:white;}
-    .lt{font-family:'Playfair Display',serif;font-size:17px;color:white;}
-    .lt span{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:400;color:var(--t2);display:block;letter-spacing:1.5px;text-transform:uppercase;margin-top:-2px;}
-    .hs{display:flex;gap:20px;}
-    .st{text-align:right;}
-    .sn{font-size:17px;font-weight:600;color:white;line-height:1;}
-    .sl{font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;}
     .app{display:flex;flex:1;overflow:hidden;}
     .sb{width:320px;background:var(--wh);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;border-right:1px solid var(--g1);}
     .sbh{padding:16px 18px 14px;border-bottom:1px solid var(--g1);background:var(--s1);}
@@ -65,7 +55,7 @@
     .leg-i{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px;}
     .leg-i:last-child{margin-bottom:0;}
     .leg-s{width:20px;height:12px;border-radius:3px;flex-shrink:0;}
-    .dp{position:absolute;top:14px;right:14px;width:300px;background:white;border-radius:var(--r);box-shadow:var(--sh);max-height:calc(100vh - 84px);overflow-y:auto;z-index:5;display:none;animation:sli .2s ease;}
+    .dp{position:absolute;top:14px;right:14px;width:300px;background:white;border-radius:var(--r);box-shadow:var(--sh);max-height:calc(100% - 28px);overflow-y:auto;z-index:5;display:none;animation:sli .2s ease;}
     .dp.v{display:block;}
     @keyframes sli{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
     .dp::-webkit-scrollbar{width:3px;}
@@ -85,30 +75,11 @@
     .dprl{font-size:11px;color:var(--g4);flex-shrink:0;}
     .dprv{font-size:11px;font-weight:500;color:var(--g7);text-align:right;}
     .badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;margin-top:6px;}
-    #ld{position:absolute;inset:0;background:var(--t9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .5s;}
-    #ld.h{opacity:0;pointer-events:none;}
-    .ll{font-family:'Playfair Display',serif;font-size:26px;color:white;margin-bottom:6px;}
-    .ls{font-size:11px;color:var(--t2);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px;}
-    .lb{width:160px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;}
-    .lf{height:100%;background:var(--t5);animation:lf 2s ease forwards;}
-    @keyframes lf{from{width:0}to{width:100%}}
     .esri-ui-top-left{top:14px!important;left:14px!important;}
     .esri-widget--button{border-radius:7px!important;}
   </style>
 </head>
 <body>
-<div id="ld"><div class="ll">WEFTA</div><div class="ls">Project Discovery</div><div class="lb"><div class="lf"></div></div></div>
-<header>
-  <div class="lw">
-    <div class="li"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
-    <div class="lt">WEFTA<span>Project Discovery Map</span></div>
-  </div>
-  <div class="hs">
-    <div class="st"><div class="sn" id="tc">—</div><div class="sl">Projects</div></div>
-    <div class="st"><div class="sn" id="cc2">—</div><div class="sl">Countries</div></div>
-    <div class="st"><div class="sn" id="tp">—</div><div class="sl">People Served</div></div>
-  </div>
-</header>
 <div class="app">
   <div class="sb">
     <div class="sbh">
@@ -361,7 +332,7 @@ require([
   });
 
   // ── load projects ─────────────────────────────────────────────────────
-  view.when(() => {
+  projLayer.when(() => {
     projLayer.queryFeatures({ where: "1=1", outFields: ["*"], returnGeometry: true, num: 2000, returnDomainValues: true })
       .then(res => {
         projects = res.features;
@@ -379,21 +350,12 @@ require([
           }
         });
 
-        // Stats
-        const tp = projects.reduce((s, f) => s + (f.attributes.PublicPopulation || 0), 0);
-        $("tc").textContent  = projects.length;
-        $("cc2").textContent = countries.length;
-        $("tp").textContent  = tp >= 1e6 ? (tp/1e6).toFixed(1)+"M" : tp >= 1000 ? Math.round(tp/1000)+"K" : tp || "—";
-
-        // Build country layer then UI
-        buildCountryLayer(weftaISOs).then(() => {
-          buildPills(countries);
-          renderList(projects);
-          setTimeout(() => $("ld").classList.add("h"), 700);
-        });
+        // Show the list right away; country shading loads in the background
+        buildPills(countries);
+        renderList(projects);
+        buildCountryLayer(weftaISOs);
       })
       .catch(() => {
-        $("ld").classList.add("h");
         $("pjl").innerHTML = '<div class="nr">Could not load projects.<br>Check FEATURE_URL.</div>';
       });
   });
@@ -404,7 +366,7 @@ require([
   // A page refresh picks up new countries automatically since data is live from AGOL.
   async function buildCountryLayer(isoSet) {
     try {
-      const res  = await fetch("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_0_countries.geojson");
+      const res  = await fetch("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson");
       const data = await res.json();
 
       // Stamp ISO_KEY on ALL world features
