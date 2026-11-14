@@ -12,7 +12,17 @@
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'DM Sans',sans-serif;background:var(--t9);color:var(--g7);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
     .app{display:flex;flex:1;overflow:hidden;}
-    .sb{width:320px;background:var(--wh);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;border-right:1px solid var(--g1);}
+    .sb{width:320px;background:var(--wh);flex-shrink:0;overflow:hidden;border-right:1px solid var(--g1);transition:width .28s ease;}
+    .sb.collapsed{width:0;border-right:none;}
+    .sbi{width:320px;height:100%;display:flex;flex-direction:column;}
+    .sbh-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+    .sbh-top .sbt{margin-bottom:0;}
+    .sbx{width:24px;height:24px;border:none;border-radius:50%;background:var(--g1);color:var(--g7);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+    .sbx:hover{background:var(--t2);}
+    #sbt-btn{position:absolute;top:14px;left:14px;z-index:7;display:flex;align-items:center;gap:7px;padding:8px 14px;background:var(--t7);color:white;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;box-shadow:var(--sh);transition:background .15s;}
+    #sbt-btn:hover{background:var(--t9);}
+    #sbt-btn svg{width:15px;height:15px;fill:currentColor;}
+    #sbt-btn .cnt{background:rgba(255,255,255,.2);padding:1px 7px;border-radius:10px;font-size:10px;}
     .sbh{padding:16px 18px 14px;border-bottom:1px solid var(--g1);background:var(--s1);}
     .sbt{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--g4);margin-bottom:10px;}
     .sw{position:relative;}
@@ -75,15 +85,19 @@
     .dprl{font-size:11px;color:var(--g4);flex-shrink:0;}
     .dprv{font-size:11px;font-weight:500;color:var(--g7);text-align:right;}
     .badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;margin-top:6px;}
-    .esri-ui-top-left{top:14px!important;left:14px!important;}
+    .esri-ui-top-left{top:58px!important;left:14px!important;}
     .esri-widget--button{border-radius:7px!important;}
   </style>
 </head>
 <body>
 <div class="app">
-  <div class="sb">
+  <div class="sb collapsed" id="sb">
+   <div class="sbi">
     <div class="sbh">
-      <div class="sbt">Filter Projects</div>
+      <div class="sbh-top">
+        <div class="sbt">Filter Projects</div>
+        <button class="sbx" id="sb-close" title="Hide panel">✕</button>
+      </div>
       <div class="sw">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
         <input type="text" id="si" placeholder="Search projects, communities…"/>
@@ -92,9 +106,15 @@
     <div class="cf" id="cp"><div class="pill pill-all active" data-c="all">All Countries</div></div>
     <div class="lh"><span>Projects</span><span class="lc" id="lc2">0</span></div>
     <div class="pjl" id="pjl"><div class="nr">Loading projects…</div></div>
+   </div>
   </div>
   <div id="mc">
     <div id="vd"></div>
+    <button id="sbt-btn" title="Show search and projects">
+      <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+      <span id="sbt-label">Search &amp; Projects</span>
+      <span class="cnt" id="sbt-cnt">0</span>
+    </button>
     <div id="dtip"></div>
     <div id="zh">Satellite imagery active</div>
     <div class="leg">
@@ -472,6 +492,7 @@ require([
   // ── project list ──────────────────────────────────────────────────────
   function renderList(list) {
     $("lc2").textContent = list.length;
+    $("sbt-cnt").textContent = list.length;
     const wrap = $("pjl");
     if (!list.length) { wrap.innerHTML = '<div class="nr">No projects match.</div>'; return; }
     wrap.innerHTML = list.map(f => {
@@ -657,6 +678,15 @@ require([
       console.error("showDetail error:", e);
     }
   }
+
+  // ── sidebar toggle ────────────────────────────────────────────────────
+  function setSidebar(open) {
+    $("sb").classList.toggle("collapsed", !open);
+    $("sbt-label").textContent = open ? "Hide Panel" : "Search & Projects";
+    if (open) setTimeout(() => $("si").focus({ preventScroll: true }), 300);
+  }
+  $("sbt-btn").onclick  = () => setSidebar($("sb").classList.contains("collapsed"));
+  $("sb-close").onclick = () => setSidebar(false);
 
   // ── search ────────────────────────────────────────────────────────────
   $("si").addEventListener("input", e => {
