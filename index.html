@@ -175,8 +175,14 @@
 // ══════════════════════════════════════════════════════════════════════════
 const FEATURE_URL = "https://services.arcgis.com/00Ya326J0OxGcPmF/arcgis/rest/services/PROJ_DISCOVERY_Public_f7b0d/FeatureServer/0";
 const SAT_ZOOM    = 10;
-const WORLD_CTR   = [20, 5];
-const WORLD_ZOOM  = 3;
+// Home view: western US/Mexico → Buenos Aires, across to Europe, Africa & Middle East.
+// The map fits this box on any screen size. Adjust the numbers to reframe.
+const HOME_EXTENT = {
+  type: "extent",
+  xmin: -125, xmax: 60,   // longitude: San Francisco → Iran/Dubai
+  ymin: -38,  ymax: 50,   // latitude:  below Buenos Aires → Paris/Vancouver
+  spatialReference: { wkid: 4326 }
+};
 
 const ISO_MAP = {
   "kenya":"KEN","nigeria":"NGA","ghana":"GHA","burkina faso":"BFA",
@@ -222,10 +228,13 @@ require([
   const map  = new Map({ basemap: "gray-vector" });
   const view = new MapView({
     container: "vd", map,
-    center: WORLD_CTR, zoom: WORLD_ZOOM,
+    extent: HOME_EXTENT,
+    constraints: { snapToZoom: false },  // fit the home box exactly, no rounding out
     ui: { components: ["zoom"] },
     popup: { autoOpenEnabled: false },
   });
+
+  const goHome = () => view.goTo({ target: HOME_EXTENT }, { duration: 700 }).catch(() => {});
 
   // ── state ─────────────────────────────────────────────────────────────
   let projects      = [];   // all loaded features
@@ -473,7 +482,7 @@ require([
       const feats = projects.filter(f => f.attributes.Country === country);
       safeGoTo(feats);
     } else {
-      view.goTo({ center: WORLD_CTR, zoom: WORLD_ZOOM }, { duration: 700 }).catch(() => {});
+      goHome();
     }
   }
 
@@ -562,7 +571,7 @@ require([
     if (activeCountry !== "all") {
       safeGoTo(projects.filter(f => f.attributes.Country === activeCountry));
     } else {
-      view.goTo({ center: WORLD_CTR, zoom: WORLD_ZOOM }, { duration: 700 }).catch(() => {});
+      goHome();
     }
   };
 
