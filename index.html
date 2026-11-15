@@ -10,7 +10,7 @@
   <style>
     :root{--t9:#0B2156;--t7:#3679B5;--t5:#2B6496;--t2:#A9CBE8;--t0:#EAF2FA;--s1:#F3F5F8;--wh:#FFFFFF;--g7:#3A3A3A;--g4:#8A8A8A;--g1:#F2F2F2;--ac:#E8832A;--acl:#FDF0E3;--sh:0 4px 24px rgba(11,33,86,.18);--r:10px;}
     *{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'Jost','Futura PT',Futura,sans-serif;background:var(--t9);color:var(--g7);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+    body{font-family:'Jost','Futura PT',Futura,sans-serif;background:#D5D9DC;color:var(--g7);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
     .app{display:flex;flex:1;overflow:hidden;}
     .sb{width:320px;background:var(--wh);flex-shrink:0;overflow:hidden;border-right:1px solid var(--g1);transition:width .28s ease;}
     .sb.collapsed{width:0;border-right:none;}
@@ -56,7 +56,11 @@
     .ct.d{background:var(--acl);color:var(--ac);}
     .nr{padding:40px 20px;text-align:center;color:var(--g4);font-size:13px;}
     #mc{flex:1;position:relative;}
-    #vd{width:100%;height:100%;}
+    #vd{width:100%;height:100%;background:#D5D9DC;}
+    #ld{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;background:#D5D9DC;color:var(--t9);font-size:13px;letter-spacing:.5px;z-index:20;transition:opacity .5s ease;}
+    #ld.hide{opacity:0;pointer-events:none;}
+    #ld .spin{width:18px;height:18px;border:2px solid var(--t2);border-top-color:var(--t7);border-radius:50%;animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
     #dtip{position:absolute;background:var(--t9);color:white;padding:7px 11px;border-radius:6px;font-size:12px;font-weight:500;pointer-events:none;z-index:10;display:none;white-space:nowrap;box-shadow:var(--sh);}
     #zh{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:rgba(11,33,86,.9);color:white;padding:7px 16px;border-radius:20px;font-size:11px;pointer-events:none;z-index:6;transition:opacity .4s;border:1px solid rgba(255,255,255,.1);opacity:0;}
     #zh.show{opacity:1;}
@@ -110,6 +114,7 @@
   </div>
   <div id="mc">
     <div id="vd"></div>
+    <div id="ld"><div class="spin"></div>Loading map…</div>
     <button id="sbt-btn" title="Show search and projects">
       <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
       <span id="sbt-label">Search &amp; Projects</span>
@@ -238,6 +243,9 @@ require([
 
   // Re-fit the home view once ready, and on iframe resize until the user moves the map
   let userMoved = false;
+  const hideLoader = () => $("ld").classList.add("hide");
+  reactiveUtils.whenOnce(() => view.ready && !view.updating).then(hideLoader);
+  setTimeout(hideLoader, 8000);  // safety net
   view.when(() => {
     view.goTo({ target: HOME_EXTENT }, { animate: false }).catch(() => {});
     view.on(["drag", "mouse-wheel", "double-click", "key-down"], () => { userMoved = true; });
